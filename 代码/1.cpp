@@ -1,74 +1,69 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+#include <set>
+
 using namespace std;
-
-const int N = 1e3 + 10;
-int n, m, k;
-char g[N][N];
-bool st[N][N][15];
-
-struct Node
-{
-    int x, y, step;
-    char ch;
-};
-
-int dx[] = {-1, 0, 1, 0};
-int dy[] = {0, 1, 0, -1};
-
-void bfs()
-{
-    queue<Node> q;
-    q.push({0, 0, 0, 'A'});
-    st[0][0][0] = true;
-
-    while (!q.empty())
-    {
-        Node t = q.front();
-        q.pop();
-
-        if (t.x == n - 1 && t.y == m - 1)
-        {
-            cout << t.step << endl;
-            return;
-        }
-
-        for (int i = 0; i < 4; i++)
-        {
-            int a = t.x + dx[i];
-            int b = t.y + dy[i];
-
-            if (a < 0 || b < 0 || a >= n || b >= m)
-                continue;
-
-            int tmp = ((t.step + 1) / k) % 2;
-            char expectedChar = tmp + 'A';
-
-            if (g[a][b] == expectedChar && !st[a][b][(t.step + 1) % k])
-            {
-                st[a][b][(t.step + 1) % k] = true;
-                q.push({a, b, t.step + 1, g[a][b]});
-            }
-        }
-    }
-
-    cout << -1 << endl;
-}
-
-void solve()
-{
-    cin >> n >> m >> k;
-    for (int i = 0; i < n; i++)
-    {
-        cin >> g[i];
-    }
-    bfs();
-}
 
 int main()
 {
     ios::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    solve();
+    cin.tie(nullptr);
+
+    int N, D, K;
+    cin >> N >> D >> K;
+
+    unordered_map<int, vector<int>> logs;
+    set<int> ids;
+
+    for (int i = 0; i < N; ++i)
+    {
+        int ts, id;
+        cin >> ts >> id;
+        logs[id].push_back(ts);
+        ids.insert(id);
+    }
+
+    vector<int> res;
+
+    for (int id : ids)
+    {
+        vector<int> &ts_list = logs[id];
+        sort(ts_list.begin(), ts_list.end());
+        int left = 0;
+        int count = 0;
+        bool found = false;
+
+        for (int right = 0; right < ts_list.size(); ++right)
+        {
+            count++;
+
+            while (ts_list[right] - ts_list[left] >= D)
+            {
+                left++;
+                count--;
+            }
+
+            if (count >= K)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+        {
+            res.push_back(id);
+        }
+    }
+
+    sort(res.begin(), res.end());
+
+    for (int id : res)
+    {
+        cout << id << '\n';
+    }
+
     return 0;
 }

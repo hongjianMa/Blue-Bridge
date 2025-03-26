@@ -2,65 +2,76 @@
 using namespace std;
 // #define int long long
 const int N = 1e3 + 10;
-char g[N][N];
 int n, m, k;
+char g[N][N];
 struct Node
 {
     int x, y, sum = 0;
     char ch;
+    Node() : x(0), y(0), sum(0), ch('\0') {}
+    Node(int _x, int _y, int _sum, char _ch) : x(_x), y(_y), sum(_sum), ch(_ch) {}
 };
 
-// Node node[N * N];
-int ans = -1;
+Node q[N * N * 10];
 
-// 因为节点可能被重复经过，开三维
+// 三维-引入了连续k次A或B
 bool st[N][N][15];
-Node q[N * N * 10]; // 可能重复走，要开大点，考场直接寄
-int tt = -1, hh = 0;
 
 int dx[] = {-1, 0, 1, 0};
 int dy[] = {0, 1, 0, -1};
 
 void bfs()
 {
-    q[++tt] = {1, 1, 0, 'A'};
-    st[1][1][0] = 1;
+    int tt = -1, hh = 0;
+    q[++tt] = {1, 1, 0, 'A'}; // 存起点
+    // 一个状态数组st--判断是否走过
+    st[1][1][0] = true;
     while (hh <= tt)
     {
+
+
         auto t = q[hh++];
         if (t.x == n && t.y == m)
         {
-            ans = t.sum;
-            cout << ans <<"\n";
-            return;
+            cout << t.sum;
+            return ;
         }
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i ++)
         {
-            int a = t.x + dx[i], b = t.y + dy[i];
-            if (a < 1 || b < 1 || a > n || b > m)
-                continue;
-
-            // 判断走没有走完k步
+            int a = t.x + dx[i];
+            int b = t.y + dy[i];
+            //判断边界
+            if (a < 1 || b < 1 || a > n || b > m) continue;
+            // 计算下一个应该走的字符是什么
             int tmp = ((t.sum + 1) / k) % 2;
-            char nextch = tmp + 'A';
+            char nextch = 'A' + tmp;
 
-            if (g[a][b] == nextch && !st[a][b][(t.sum + 1) % k])
+            // 判断是否走过
+            if(st[a][b][t.sum % k + 1]) continue;
+            if (g[a][b] == nextch)
             {
-                st[a][b][(t.sum + 1) % k] = true;
+                st[a][b][(t.sum % k) + 1] = true;
                 q[++tt] = {a, b, t.sum + 1, g[a][b]};
             }
         }
+
     }
+
     cout << -1;
+
 }
+
+
+
+
 
 void solve()
 {
     cin >> n >> m >> k;
-    for (int i = 1; i <= n; i++)
-        cin >> (g[i] + 1);
+    for (int i = 1; i <= n; i ++)
+        cin >> (g[i] + 1); 
     bfs();
-    // cout << ans << "\n";
+   
 }
 signed main()
 {
